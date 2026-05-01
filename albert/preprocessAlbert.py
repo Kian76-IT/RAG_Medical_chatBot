@@ -4,8 +4,8 @@ import os
 from transformers import AlbertTokenizer
 
 # CONFIG (SUDAH DIPERBAIKI)
-DATA_PATH = "RAG_Medical_chatBot/dataset/clean_dataset.csv"
-SAVE_DIR = "RAG_Medical_chatBot/albert/"
+DATA_PATH = "../dataset/clean_dataset.csv"
+SAVE_DIR = "./"
 MODEL_NAME = "albert-base-v2"
 MAX_LEN = 128
 
