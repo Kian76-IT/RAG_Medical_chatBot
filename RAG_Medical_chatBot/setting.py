@@ -1,4 +1,4 @@
-DATA_PATH = "RAG_Medical_chatBot/dataset/clean_dataset.csv"
+DATA_PATH = "dataset/clean_dataset.csv"
 
 MODELS = {
     "BERT": "all-MiniLM-L6-v2",

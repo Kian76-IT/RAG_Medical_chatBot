@@ -1,5 +1,0 @@
-faiss==1.5.3
-numpy==2.4.6
-pandas==3.0.3
-sentence_transformers==5.5.1
-transformers==5.9.0
