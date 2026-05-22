@@ -8,20 +8,15 @@ from rag.pipeline import run_rag
 
 from llm.generator import LLMGenerator
 
-# =========================
-# LOAD DATA
-# =========================
 
+# LOAD DATA
 print("Loading dataset...")
 
 df, texts = load_data(DATA_PATH)
 
 print("Dataset loaded!")
 
-# =========================
 # EMBEDDING MODEL
-# =========================
-
 print("Loading embedding model...")
 
 embedding_model = BaseEmbeddingModel(
@@ -29,35 +24,24 @@ embedding_model = BaseEmbeddingModel(
 )
 
 print("Creating embeddings...")
-
 embeddings = embedding_model.encode(texts)
-
 print("Embeddings created!")
 
-# =========================
+
 # RETRIEVER
-# =========================
-
 retriever = Retriever(embeddings)
-
 print("Retriever ready!")
 
-# =========================
+
 # LLM
-# =========================
-
 print("Loading LLM...")
-
 llm = LLMGenerator(
     "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 )
-
 print("LLM loaded!")
 
-# =========================
-# CHAT LOOP
-# =========================
 
+# CHAT LOOP
 while True:
 
     query = input("\nYou: ")
@@ -66,10 +50,7 @@ while True:
         print("Chat ended.")
         break
 
-    # =========================
     # RAG RETRIEVAL
-    # =========================
-
     results = run_rag(
         query,
         embedding_model,
@@ -83,18 +64,12 @@ while True:
         results["context"].tolist()
     )
 
-    # =========================
     # GENERATE RESPONSE
-    # =========================
-
     response = llm.generate(
         query,
         context
     )
 
-    # =========================
     # OUTPUT
-    # =========================
-
     print("\nBot:")
     print(response)
