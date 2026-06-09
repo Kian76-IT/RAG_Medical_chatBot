@@ -1,9 +1,7 @@
 import sys
 import os
 
-# =========================
 # FIX IMPORT PATH
-# =========================
 
 sys.path.append(
     os.path.abspath(
@@ -14,9 +12,7 @@ sys.path.append(
     )
 )
 
-# =========================
 # IMPORTS
-# =========================
 
 import numpy as np
 import pandas as pd
@@ -28,19 +24,15 @@ from rag.retriever import Retriever
 
 
 
-# =========================
-# LOAD DATA
-# =========================
 
+# LOAD DATA
 print("Loading dataset...")
 
 df, texts = load_data(DATA_PATH)
 
 print("Dataset loaded!")
 
-# =========================
 # EVALUATION QUERIES
-# =========================
 
 # gunakan seluruh question sebagai query
 
@@ -51,9 +43,7 @@ queries = df["question"].tolist()
 
 ground_truth = list(range(len(df)))
 
-# =========================
 # METRICS
-# =========================
 
 def precision_at_k(retrieved, relevant, k):
 
@@ -92,15 +82,12 @@ def hit_rate(retrieved, relevant):
 
     return 1 if relevant in retrieved else 0
 
-# =========================
+
 # RESULT STORAGE
-# =========================
 
 all_results = []
 
-# =========================
 # LOOP ALL MODELS
-# =========================
 
 for model_name, model_path in MODELS.items():
 
@@ -108,66 +95,47 @@ for model_name, model_path in MODELS.items():
     print(f"Evaluating {model_name}")
     print("=========================")
 
-    # =========================
     # LOAD MODEL
-    # =========================
-
     embedding_model = BaseEmbeddingModel(
         model_path
     )
 
-    # =========================
     # CREATE EMBEDDINGS
-    # =========================
-
     print("Encoding documents...")
 
     embeddings = embedding_model.encode(texts)
 
-    # =========================
-    # CREATE RETRIEVER
-    # =========================
+    # CREATE RETRIEVAL
 
     retriever = Retriever(embeddings)
 
-    # =========================
     # METRIC STORAGE
-    # =========================
-
     precision_scores = []
     recall_scores = []
     mrr_scores = []
     hit_scores = []
 
-    # =========================
     # QUERY LOOP
-    # =========================
 
     for query, relevant_doc in zip(
         queries,
         ground_truth
     ):
 
-        # =========================
         # QUERY EMBEDDING
-        # =========================
 
         query_vec = embedding_model.encode(
             [query]
         )
 
-        # =========================
         # RETRIEVE
-        # =========================
 
         indices = retriever.search(
             query_vec,
             k=3
         )[0]
 
-        # =========================
         # EVALUATION
-        # =========================
 
         precision_scores.append(
             precision_at_k(
@@ -199,10 +167,7 @@ for model_name, model_path in MODELS.items():
             )
         )
 
-    # =========================
     # AVERAGE SCORES
-    # =========================
-
     avg_precision = np.mean(
         precision_scores
     )
@@ -219,9 +184,7 @@ for model_name, model_path in MODELS.items():
         hit_scores
     )
 
-    # =========================
     # PRINT RESULT
-    # =========================
 
     print(f"\nResults for {model_name}:")
 
@@ -241,27 +204,18 @@ for model_name, model_path in MODELS.items():
         f"Hit Rate: {avg_hit:.4f}"
     )
 
-    # =========================
     # SAVE RESULTS
-    # =========================
 
     all_results.append({
 
         "Model": model_name,
-
         "Precision@3": avg_precision,
-
         "Recall@3": avg_recall,
-
         "MRR": avg_mrr,
-
         "Hit Rate": avg_hit
     })
 
-# =========================
 # FINAL RESULT TABLE
-# =========================
-
 results_df = pd.DataFrame(
     all_results
 )
@@ -272,10 +226,8 @@ print("=========================")
 
 print(results_df)
 
-# =========================
-# SAVE CSV
-# =========================
 
+# SAVE CSV
 results_df.to_csv(
     "evaluation/retrieval_results.csv",
     index=False
