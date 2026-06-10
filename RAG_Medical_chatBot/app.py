@@ -5,7 +5,7 @@ from models.base import BaseEmbeddingModel
 from rag.retriever import Retriever
 from rag.pipeline import run_rag
 from llm.generator import LLMGenerator
-from setting import DATA_PATH
+
 
 # PAGE CONFIG
 st.set_page_config(
