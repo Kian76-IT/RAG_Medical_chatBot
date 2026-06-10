@@ -1,7 +1,11 @@
-DATA_PATH = "dataset/clean_dataset.csv"
+import os
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DATA_PATH = os.path.join(BASE_DIR, "dataset", "clean_dataset.csv")
 
 MODELS = {
-
     # MiniLM
     "BERT": "sentence-transformers/all-MiniLM-L6-v2",
 
