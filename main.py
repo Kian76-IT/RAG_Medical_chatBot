@@ -8,7 +8,6 @@ from rag.pipeline import run_rag
 
 from llm.generator import LLMGenerator
 
-
 # LOAD DATA
 print("Loading dataset...")
 
@@ -60,8 +59,9 @@ while True:
     )
 
     # combine retrieved context
+
     context = "\n".join(
-        results["context"].tolist()
+        results["contexts"]
     )
 
     # GENERATE RESPONSE
