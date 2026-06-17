@@ -37,7 +37,7 @@ class LLMGenerator:
                 trust_remote_code=True,
                 torch_dtype=torch.float32,
                 device_map={"": "cpu"},  # Paksa mapping penuh ke CPU RAM
-                low_cpu_mem_usage=False  # Matikan offloading otomatis ke disk
+                low_cpu_mem_usage=True  # Matikan offloading otomatis ke disk
             )
         else:
             self.model = AutoModelForCausalLM.from_pretrained(
