@@ -31,14 +31,22 @@ class LLMGenerator:
 
         # BASE MODEL
         print("Loading base model...")
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            trust_remote_code=True,
-            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            device_map="auto"
-        )
+        if self.device == "cpu":
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+                torch_dtype=torch.float32,
+                device_map={"": "cpu"},  # Paksa mapping penuh ke CPU RAM
+                low_cpu_mem_usage=False  # Matikan offloading otomatis ke disk
+            )
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+                torch_dtype=torch.float16,
+                device_map="auto"
+            )
         print("Base model loaded!")
-
         # LOAD LoRA ADAPTER
         print("Loading LoRA adapter...")
         self.model = PeftModel.from_pretrained(
