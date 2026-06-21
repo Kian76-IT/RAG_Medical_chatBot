@@ -23,16 +23,10 @@ print("Loading embedding model...")
 model = AlbertModel()
 
 print("Creating embeddings...")
-embeddings = model.model.encode(
-    texts,
-    show_progress_bar=True
-)
+embeddings = model.model.encode(texts,show_progress_bar=True)
 
 print("Saving embeddings...")
-np.save(
-    "embedding/embeddings.npy",
-    embeddings
-)
+np.save("embedding/embeddings.npy",embeddings)
 
 print("Done!")
 print("Shape:", embeddings.shape)

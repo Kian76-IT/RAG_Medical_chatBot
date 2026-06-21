@@ -12,7 +12,6 @@ class LLMGenerator:
         # DEVICE
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
-
         if self.device == "cuda":
             print("GPU:", torch.cuda.get_device_name(0))
 
@@ -23,10 +22,8 @@ class LLMGenerator:
             trust_remote_code=True
         )
 
-        # penting untuk stabilitas generation
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
-
         print("Tokenizer loaded!")
 
         # BASE MODEL
@@ -36,8 +33,8 @@ class LLMGenerator:
                 model_name,
                 trust_remote_code=True,
                 torch_dtype=torch.float32,
-                device_map={"": "cpu"},  # Paksa mapping penuh ke CPU RAM
-                low_cpu_mem_usage=True  # Matikan offloading otomatis ke disk
+                device_map={"": "cpu"},  
+                low_cpu_mem_usage=True  
             )
         else:
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -54,15 +51,14 @@ class LLMGenerator:
             "medical_lora_adapter"
         )
         print("LoRA adapter loaded!")
-
         self.model.eval()
 
     def generate(self, query, context):
 
-        # CLEAN / LIMIT CONTEXT (penting untuk RAG)
+        
         context = context.strip()
 
-        # PROMPT CHAT STYLE (lebih aman untuk TinyLlama/chat models)
+       
         prompt = f"""<|system|>
 You are a medical assistant chatbot specialized in diabetes.
 Answer ONLY using the provided context.
@@ -88,18 +84,16 @@ Do not repeat instructions, context, or question.
 
         print("Generating response...")
 
-        # GENERATION (lebih deterministic → anti halu)
+        # GENERATOR
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
 
                 max_new_tokens=200,
-                do_sample=False,          # 🔥 penting: matikan randomness
-                temperature=0.0,          # stabil
+                do_sample=False,          
+                temperature=0.0,          
                 top_p=1.0,
-
                 repetition_penalty=1.2,
-
                 eos_token_id=self.tokenizer.eos_token_id,
                 pad_token_id=self.tokenizer.eos_token_id
             )
@@ -146,7 +140,6 @@ if __name__ == "__main__":
     )
 
     question = "What is type of diabetes?"
-
     response = llm.generate(question, context_1)
 
     print("\nBot:")

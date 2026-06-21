@@ -10,9 +10,8 @@ from rag.pipeline import run_rag
 from llm.generator import LLMGenerator
 from models.albert import AlbertModel
 
-# =====================================================
-# 1. PAGE CONFIGURATION
-# =====================================================
+
+# PAGE CONFIGURATION
 st.set_page_config(
     page_title="DiabeteBot | AI Medical Assistant",
     page_icon="🩺",
@@ -20,9 +19,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# =====================================================
-# 2. LOAD CHATBOT
-# =====================================================
+# LOAD CHATBOT
+
 @st.cache_resource(show_spinner=False)
 def load_chatbot():
 
@@ -35,49 +33,32 @@ def load_chatbot():
     print("Current Working Directory:")
     print(os.getcwd())
 
-    # =====================================================
-    # STEP 1 - LOAD DATASET
-    # =====================================================
+
     print("STEP 1 - Loading dataset...")
-
     df, texts = load_data(DATA_PATH)
-
     print(
         f"Dataset loaded ({len(df)} rows) "
         f"in {time.time()-start:.2f}s"
     )
 
-    # =====================================================
-    # STEP 2 - LOAD EMBEDDING MODEL
-    # =====================================================
     t = time.time()
-
     print("STEP 2 - Loading ALBERT embedding model...")
-
     embedding_model = AlbertModel()
-
     print(
         f"Embedding model loaded "
         f"in {time.time()-t:.2f}s"
     )
 
-    # =====================================================
-    # STEP 3 - LOAD EMBEDDINGS
-    # =====================================================
     t = time.time()
-
     print("STEP 3 - Loading embeddings.npy...")
-
     BASE_DIR = os.path.dirname(
         os.path.abspath(__file__)
     )
-
     EMBEDDING_PATH = os.path.join(
         BASE_DIR,
         "embedding",
         "embeddings.npy"
     )
-
     print("BASE_DIR:", BASE_DIR)
     print("EMBEDDING_PATH:", EMBEDDING_PATH)
     print("FILE EXISTS:", os.path.exists(EMBEDDING_PATH))
@@ -86,65 +67,41 @@ def load_chatbot():
         BASE_DIR,
         "embedding"
     )
-
     if os.path.exists(embedding_dir):
         print("Embedding folder contents:")
         print(os.listdir(embedding_dir))
     else:
         print("Embedding folder not found!")
-
     embeddings = np.load(
         EMBEDDING_PATH
     )
-
     print(
         f"Embeddings loaded "
         f"Shape={embeddings.shape} "
         f"in {time.time()-t:.2f}s"
     )
 
-    # =====================================================
-    # STEP 4 - BUILD RETRIEVER
-    # =====================================================
     t = time.time()
-
     print("STEP 4 - Building retriever...")
-
-    retriever = Retriever(
-        embeddings
-    )
-
+    retriever = Retriever(embeddings)
     print(
         f"Retriever ready "
         f"in {time.time()-t:.2f}s"
     )
 
-    # =====================================================
-    # STEP 5 - LOAD LLM
-    # =====================================================
     t = time.time()
-
     print("STEP 5 - Loading TinyLlama + LoRA...")
-
-    llm = LLMGenerator(
-        "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    )
-
+    llm = LLMGenerator("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
     print(
         f"LLM loaded "
         f"in {time.time()-t:.2f}s"
     )
 
-    # =====================================================
-    # STEP 6 - FINISH
-    # =====================================================
     print("STEP 6 - Chatbot ready!")
-
     print(
         f"TOTAL LOAD TIME: "
         f"{time.time()-start:.2f}s"
     )
-
     return (
         df,
         embedding_model,
@@ -152,33 +109,22 @@ def load_chatbot():
         llm
     )
 
-# =====================================================
-# 3. SIDEBAR
-# =====================================================
 with st.sidebar:
-
     st.title("🩺 DiabeteBot")
     st.caption("AI Medical Assistant • RAG + LoRA")
-
     st.divider()
-
     with st.status(
         "Initializing System Models...",
         expanded=True
     ) as status:
-
         df, embedding_model, retriever, llm = load_chatbot()
-
         status.update(
             label="All Systems Operational!",
             state="complete",
             expanded=False
         )
-
     st.divider()
-
     st.markdown("### 💡 Cara Penggunaan")
-
     st.markdown(
         "- Ketik pertanyaan seputar **Diabetes**.\n"
         "- Sistem akan melakukan retrieval dokumen.\n"
@@ -187,7 +133,6 @@ with st.sidebar:
     )
 
     st.divider()
-
     if st.button(
         "🗑️ Hapus Riwayat Chat",
         use_container_width=True
@@ -195,73 +140,38 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-# =====================================================
-# 4. MAIN UI
-# =====================================================
 st.title("Tanya Jawab Medis: Diabetes")
-
 st.markdown(
     "Halo! Saya adalah asisten medis AI yang "
     "ditenagai oleh model bahasa yang telah "
     "di-*fine-tuning*."
 )
 
-# =====================================================
-# 5. SESSION STATE
-# =====================================================
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
-# =====================================================
-# 6. DISPLAY HISTORY
-# =====================================================
 for message in st.session_state.messages:
-
     with st.chat_message(
         message["role"]
     ):
+        st.markdown(message["content"])
+        if (message["role"] == "assistant"and "context" in message):
+            with st.expander("📚 Lihat Referensi Dokumen"):
+                st.info(message["context"])
 
-        st.markdown(
-            message["content"]
-        )
 
-        if (
-            message["role"] == "assistant"
-            and "context" in message
-        ):
-            with st.expander(
-                "📚 Lihat Referensi Dokumen"
-            ):
-                st.info(
-                    message["context"]
-                )
-
-# =====================================================
-# 7. CHAT INPUT
-# =====================================================
-if prompt := st.chat_input(
-    "Ketik pertanyaan Anda di sini..."
-):
-
-    st.chat_message(
-        "user"
-    ).markdown(prompt)
-
+if prompt := st.chat_input("Ketik pertanyaan Anda di sini..."):
+    st.chat_message("user").markdown(prompt)
     st.session_state.messages.append(
         {
             "role": "user",
             "content": prompt
         }
     )
-
     with st.chat_message("assistant"):
-
         with st.spinner(
             "Mencari referensi dan meramu jawaban..."
         ):
-
             try:
-
                 results = run_rag(
                     prompt,
                     embedding_model,
@@ -269,21 +179,10 @@ if prompt := st.chat_input(
                     df,
                     k=3
                 )
-
-                context = "\n\n---\n\n".join(
-                    results["contexts"]
-                )
-
-                response = llm.generate(
-                    prompt,
-                    context
-                )
-
+                context = "\n\n---\n\n".join(results["contexts"])
+                response = llm.generate(prompt,context)
                 st.markdown(response)
-
-                with st.expander(
-                    "📚 Hasil Retrieval"
-                ):
+                with st.expander("📚 Hasil Retrieval"):
                     st.info(context)
 
                 st.session_state.messages.append(
@@ -295,7 +194,6 @@ if prompt := st.chat_input(
                 )
 
             except Exception as e:
-
                 st.error(
                     f"⚠️ Terjadi kesalahan pada sistem: {str(e)}"
                 )
