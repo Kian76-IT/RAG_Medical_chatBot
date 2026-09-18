@@ -110,7 +110,7 @@ def load_chatbot():
     )
 
 with st.sidebar:
-    st.title("🩺 DiabeteBot")
+    st.title("🩺 DiabetesBot")
     st.caption("AI Medical Assistant • RAG + LoRA")
     st.divider()
     with st.status(
@@ -124,27 +124,25 @@ with st.sidebar:
             expanded=False
         )
     st.divider()
-    st.markdown("### 💡 Cara Penggunaan")
+    st.markdown("### 💡 How To Use")
     st.markdown(
-        "- Ketik pertanyaan seputar **Diabetes**.\n"
-        "- Sistem akan melakukan retrieval dokumen.\n"
-        "- Jawaban dihasilkan dari konteks hasil RAG.\n"
-        "- Buka referensi untuk melihat sumber konteks."
+        "- Type a question about **Diabetes**.\n"
+        "- The system will retrieve relevant documents.\n"
+        "- The answer will be generated based on the retrieved context.\n"
+        "- Open the references to view the source context."
     )
 
     st.divider()
     if st.button(
-        "🗑️ Hapus Riwayat Chat",
+        "🗑️ Clear Chat Hiatory",
         use_container_width=True
     ):
         st.session_state.messages = []
         st.rerun()
 
-st.title("Tanya Jawab Medis: Diabetes")
+st.title("Diabetes Medical Q&A")
 st.markdown(
-    "Halo! Saya adalah asisten medis AI yang "
-    "ditenagai oleh model bahasa yang telah "
-    "di-*fine-tuning*."
+    "Hello! I am an AI medical assistant powered by a *fine-tuned* language model."
 )
 
 if "messages" not in st.session_state:
@@ -155,11 +153,11 @@ for message in st.session_state.messages:
     ):
         st.markdown(message["content"])
         if (message["role"] == "assistant"and "context" in message):
-            with st.expander("📚 Lihat Referensi Dokumen"):
+            with st.expander("📚 View Document References"):
                 st.info(message["context"])
 
 
-if prompt := st.chat_input("Ketik pertanyaan Anda di sini..."):
+if prompt := st.chat_input("Type your question here..."):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append(
         {
@@ -169,7 +167,7 @@ if prompt := st.chat_input("Ketik pertanyaan Anda di sini..."):
     )
     with st.chat_message("assistant"):
         with st.spinner(
-            "Mencari referensi dan meramu jawaban..."
+            "Searching for relevant information and generating an answer..."
         ):
             try:
                 results = run_rag(
@@ -182,7 +180,7 @@ if prompt := st.chat_input("Ketik pertanyaan Anda di sini..."):
                 context = "\n\n---\n\n".join(results["contexts"])
                 response = llm.generate(prompt,context)
                 st.markdown(response)
-                with st.expander("📚 Hasil Retrieval"):
+                with st.expander("📚 Retrieved Documents"):
                     st.info(context)
 
                 st.session_state.messages.append(
@@ -195,5 +193,5 @@ if prompt := st.chat_input("Ketik pertanyaan Anda di sini..."):
 
             except Exception as e:
                 st.error(
-                    f"⚠️ Terjadi kesalahan pada sistem: {str(e)}"
+                    f"⚠️ An error occurred in the system.: {str(e)}"
                 )
