@@ -146,33 +146,20 @@ print("=" * 50)
 
 training_args = TrainingArguments(
     output_dir="./lora_output",
-
     num_train_epochs=3,
-
     per_device_train_batch_size=1,
     gradient_accumulation_steps=4,
-
-    learning_rate=2e-4,
-
     fp16=True,
-
     optim="paged_adamw_8bit",
-
     logging_steps=100,
-
     evaluation_strategy="steps",
     eval_steps=500,
-
     save_strategy="steps",
     save_steps=500,
-
     save_total_limit=2,
-
     load_best_model_at_end=True,
-
     metric_for_best_model="eval_loss",
     greater_is_better=False,
-
     report_to="none"
 )
 
@@ -186,18 +173,12 @@ print("=" * 50)
 
 trainer = SFTTrainer(
     model=model,
-
     train_dataset=train_dataset,
     eval_dataset=valid_dataset,
-
     dataset_text_field="text",
-
     peft_config=peft_config,
-
     max_seq_length=512,
-
     args=training_args,
-
     callbacks=[
         EarlyStoppingCallback(
             early_stopping_patience=3
